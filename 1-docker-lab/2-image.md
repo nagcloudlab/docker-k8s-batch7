@@ -1,3 +1,32 @@
+
+
+
+
+### demo-1: build a java-web-service image
+
+```bash
+cd services/java-web-service
+docker build -t java-web-service:v1 .
+docker image ls
+docker run -d -p 8080:8080 -e SPRING_PROFILES_ACTIVE=stage java-web-service:v1
+curl http://localhost:8080/hello
+```
+
+### demo-2: build a go-web-service image
+
+```bash
+cd services/go-web-service
+docker build -t go-web-service:v1 .
+docker image ls
+docker run -d -p 8080:8080  go-web-service:v1
+curl http://localhost:8080/
+```
+
+
+
+
+
+
 ### pull & inspect image:
 
 ```bash
@@ -58,25 +87,6 @@ docker image ls
 ```
 
 
-### demo-1: build a java-web-service image
-
-```bash
-cd services/java-web-service
-docker build -t java-web-service:v1 .
-docker image ls
-docker run -d -p 8080:8080 -e SPRING_PROFILES_ACTIVE=stage java-web-service:v1
-curl http://localhost:8080/api/info
-```
-
-### demo-2: build a python-web-service image
-
-```bash
-cd services/python-web-service
-docker build --build-arg FILE_NAME=app.py -t python-web-service:v1 .
-docker image ls
-docker run -d -p 8080:8080  python-web-service:v1
-curl http://localhost:8080/api/info
-```
 
 ### build an image for multi-architecture:
 
