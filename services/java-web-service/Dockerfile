@@ -19,7 +19,6 @@ COPY pom.xml ./
 # Download dependencies and store them in cache
 RUN mvn dependency:go-offline -B
 
-
 # ---- Stage 2: Build and Extract Layers ----
 FROM maven:3.8.7-amazoncorretto-17 AS builder
 
@@ -40,8 +39,7 @@ RUN mvn clean package -DskipTests
 RUN mkdir -p /app/extracted && \
     java -Djarmode=layertools -jar target/java-web-service-0.0.1-SNAPSHOT.jar extract --destination /app/extracted
 
-
-    # ---- Stage 3: Optimized Runtime Image ----
+# ---- Stage 3: Optimized Runtime Image ----
 FROM amazoncorretto:17-alpine
 
 # Metadata labels for runtime image
@@ -75,11 +73,8 @@ EXPOSE 8080
 # HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
 #   CMD curl -f http://localhost:8080/actuator/health || exit 1
 
-# Define volume for persistent storage (if required)
-# VOLUME ["/app/logs"]
-
 # Set user permissions (Non-root user)
-# USER root
+USER nobody
 
 # Set the default shell
 SHELL ["/bin/sh", "-c"]
@@ -91,14 +86,13 @@ SHELL ["/bin/sh", "-c"]
 STOPSIGNAL SIGTERM
 
 # VOLUME
-# VOLUME [ "/data" ]
+VOLUME [ "/data" ]
 
 # Set an ONBUILD instruction for derived images (if needed)
-# ONBUILD COPY additional-config/ /app/config/
+ONBUILD COPY additional-config/ /app/config/
 
 # Set default entrypoint for the application
-ENTRYPOINT ["java", "-XX:TieredStopAtLevel=1", "-XX:+UseContainerSupport", \
-  "-Dspring.profiles.active=dev", "org.springframework.boot.loader.launch.JarLauncher"]
+ENTRYPOINT ["java", "-XX:TieredStopAtLevel=1", "-XX:+UseContainerSupport", "org.springframework.boot.loader.launch.JarLauncher"]
 
 # Default command (can be overridden)
 CMD []

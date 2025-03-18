@@ -1,12 +1,10 @@
 
 
-
-
 ### demo-1: build a java-web-service image
 
 ```bash
 cd services/java-web-service
-docker build -t java-web-service:v1 .
+docker build -t java-web-service:v5 .
 docker image ls
 docker run -d -p 8080:8080 -e SPRING_PROFILES_ACTIVE=stage java-web-service:v1
 curl http://localhost:8080/hello
