@@ -1,140 +1,105 @@
 
 
-### demo-1: build a java-web-service image
+
+### build an image from a Dockerfile ( e.g java-web-service)
 
 ```bash
 cd services/java-web-service
-docker build -t java-web-service:v5 .
-docker image ls
-docker run -d -p 8080:8080 -e SPRING_PROFILES_ACTIVE=stage java-web-service:v1
-curl http://localhost:8080/hello
-```
-
-### demo-2: build a go-web-service image
-
-```bash
-cd services/go-web-service
-docker build -t go-web-service:v1 .
-docker image ls
-docker run -d -p 8080:8080  go-web-service:v1
-curl http://localhost:8080/
-```
-
-
-
-
-
-
-### pull & inspect image:
-
-```bash
+touch Dockerfile
+docker build -t java-web-service:v1 .
 docker images
-docker image ls
-
-# image name format: [registry-hostname[:port]/]repository[:tag]
-docker pull redis
-docker pull docker.io/redis:latest
-
-
-docker inspect redis
-docker inspect node-web-service:v10
-docker history node-web-service:v10
+docker run -d -p 8080:8080 java-web-service:v1
+docker ps
+curl http://localhost:8080/hello
+docker stop <container-id>
+docker rm <container-id>
 ```
 
 
-A tool for exploring each layer in a docker image:
-https://github.com/wagoodman/dive
+### inspect an image
 
 ```bash
+docker inspect java-web-service:v1
+docker history java-web-service:v1
+```
+
+
+### A tool for exploring each layer in a docker image
+
+```bash
+# https://github.com/wagoodman/dive
 DIVE_VERSION=$(curl -sL "https://api.github.com/repos/wagoodman/dive/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
 curl -OL https://github.com/wagoodman/dive/releases/download/v${DIVE_VERSION}/dive_${DIVE_VERSION}_linux_amd64.deb
 sudo apt install ./dive_${DIVE_VERSION}_linux_amd64.deb
+dive java-web-service:v1
 ```
 
+### scan an image for vulnerabilities
 ```bash
-dive node-web-service:v10
+# later
 ```
 
-
-### pull an image using a specific tag:
-
+### create private registry
 ```bash
-docker pull redis:6.0.9
-docker image ls
-```
-
-### pull an image using a specific digest:
-
-```bash
-docker pull redis@sha256:48c1431bed43fb2645314e4a22d6ca03cf36c5541d034de6a4f3330e7174915b
-docker image ls
-```
-
-### pull un-official image:
-
-```bash
-docker pull docker.io/nagabhushanamn/greeting-service:v1
-docker image ls
-```
-
-### tag an image:
-
-```bash
-docker tag nagabhushanamn/greeting-service:v1 nagabhushanamn/greeting-service:tng
-docker image ls
-```
-
-
-
-### build an image for multi-architecture:
-
-```bash
-docker buildx build --platform linux/amd64,linux/arm64 -t java-web-service:v11 .
-docker image ls
-docker inspect greeting-service:v1
-```
-
-### pull an imgae with a specific architecture:
-
-```bash
-docker pull --platform linux/arm64 redis
-docker image ls
-```
-
-### setup a private registry:
-
-```bash
-docker run -d -p 5000:5000 --name registry registry:2
-docker ps
+docker run -d -p 5000:5000 registry:2
 curl http://localhost:5000/v2/_catalog
 ```
 
-### tag an image and push it to the private registry:
-
+### push an image to a private registry
 ```bash
+# image_name=registry-url:port/repository:tag
 docker tag java-web-service:v1 localhost:5000/java-web-service:v1
-docker image ls
 docker push localhost:5000/java-web-service:v1
+docker rmi localhost:5000/java-web-service:v1
+docker rmi java-web-service:v1
 ```
 
-### pull an image from the private registry:
+### pull an image from a private registry
 
 ```bash
 docker pull localhost:5000/java-web-service:v1
-docker image ls
 ```
 
+
+### pull an image with a specific tag
+```bash
+docker pull localhost:5000/java-web-service:v1
+```
+
+
+### pull an image with a specific digest
+```bash
+docker pull localhost:5000/java-web-service@sha256:95d1511885c0eb5a18492b6c1fef122aa0ad60a6bc59f5746c5263d1a59b6a4b
+```
+
+### platform specific image
+```bash
+docker pull --platform linux/arm/v5 redis
+```
+
+
+### build an image with a specific platform
+```bash
+docker buildx create --use
+docker buildx ls
+docker buildx build --platform linux/amd64,linux/arm64 -t java-web-service:v1 .
+```
+
+
+### offcial images vs unofficial images
+```bash
+docker pull redis # official image
+docker pull nagabhusanamn/java-web-service # unofficial image   
+```
+
+
 ### Dockerfile Best Practices
-
 Some best practices for writing Dockerfiles include:
-
-- Use official base images.
-- Minimize the number of layers by combining commands.
-- Use multi-stage builds to reduce image size.
-- Leverage .dockerignore to exclude unnecessary files.
-- Specify exact versions of dependencies.
-- Use COPY instead of ADD.
-- Use ARG for dynamic values.
-- Use labels for metadata.
-- Use health checks to monitor container health.
-- Use .dockerignore to exclude unnecessary files.
+Use official base images.
+Minimize the number of layers by combining commands.
+Use multi-stage builds to reduce image size.
+Leverage .dockerignore to exclude unnecessary files.
+Specify exact versions of dependencies.
+Use ARG for dynamic values.
+Use labels for metadata.
+Use health checks to monitor container health.
