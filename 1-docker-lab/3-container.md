@@ -110,15 +110,10 @@ docker container ls -a
 
 
 
+
+
+
 ### Create a container resource limits
-
-```bash
-
-# Memory limits - 200 MB of memory
-docker run --name my-limited-memory -m 200m -it ubuntu:20.04
-# Memory reservation - 100 MB of memory is guaranteed
-docker run --name my-memory-reservation --memory-reservation=100m -it ubuntu:20.04
-
 
 
 # CPU limits - 0.5 CPU cores (50% of one CPU core)
@@ -127,6 +122,14 @@ docker run --name my-limited-cpu --cpus="0.5" -it ubuntu:20.04
 docker run --name my-cpu-shares -c 256 -it ubuntu:20.04
 # CPU quota - 10000 microseconds every 50000 microseconds
 docker run --name my-cpu-quota --cpu-quota=10000 --cpu-period=50000 -it ubuntu:20.04
+
+
+
+# Memory limits - 200 MB of memory
+docker run --name my-limited-memory -m 200m -it ubuntu:20.04
+# Memory reservation - 100 MB of memory is guaranteed
+docker run --name my-memory-reservation --memory-reservation=100m -it ubuntu:20.04
+
 
 
 # Block IO limits - 1 MB/s read limit on /dev/sda
