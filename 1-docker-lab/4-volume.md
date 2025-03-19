@@ -56,4 +56,41 @@ tail -f /var/log/nginx/error.log
 
 
 
+# ✅ 1️⃣ Install NFS Server on your host (Ubuntu/Debian):
+
+sudo apt update
+sudo apt install -y nfs-kernel-server
+
+# ✅ 2️⃣ Create and configure the NFS export directory:
+
+sudo mkdir -p /data/nfs/postgres
+sudo chown -R nobody:nogroup /data/nfs/postgres
+sudo chmod -R 777 /data/nfs/postgres
+
+# ✅ 3️⃣ Export the directory in /etc/exports:
+
+sudo nano /etc/exports
+# add below line
+/data/nfs/postgres *(rw,sync,no_subtree_check,no_root_squash)
+
+sudo exportfs -rav
+sudo systemctl restart nfs-kernel-server
+
+sudo exportfs -v
+
+# ✅ 4️⃣ Install NFS Client on your host (Ubuntu/Debian):
+
+sudo apt update
+sudo apt install -y nfs-common
+
+```
+### create a volume with NFS
+
+```bash
+docker volume create \
+  --driver local \
+  --opt type=nfs \
+  --opt o=addr=10.0.0.4,rw \
+  --opt device=:/data/nfs/jws \
+  nfs-vol
 ```

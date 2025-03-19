@@ -1,6 +1,7 @@
 package com.example;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
@@ -17,30 +18,21 @@ import jakarta.annotation.PostConstruct;
 @RestController
 public class JavaWebServiceApplication {
 
-	private String logDir = "/app/log";
-	private String logFile = "java-web-service.log";
+	String logDir = "/app/log";
+	String logFileName = "java-web-servoce.log";
 
-	private String logPath = logDir + "/" + logFile;
-
-	private FileWriter fileWriter ;
+	FileWriter fileWriter;
 
 	@PostConstruct
 	public void init() {
 		try {
-			File logDirFile = new File(logDir);
-			if (!logDirFile.exists()) {
-				logDirFile.mkdirs();
-			}
-			File logFile = new File(logPath);
-			if (!logFile.exists()) {
-				logFile.createNewFile();
-			}
-			fileWriter = new FileWriter(logPath);
+			Files.createDirectories(new File(logDir).toPath());
+			fileWriter = new FileWriter(logDir + "/" + logFileName, true);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@GetMapping("/hello")
 	public String hello() {
 		// Log request to file
