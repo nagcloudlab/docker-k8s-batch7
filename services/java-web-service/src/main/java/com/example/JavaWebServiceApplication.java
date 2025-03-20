@@ -19,7 +19,7 @@ import jakarta.annotation.PostConstruct;
 public class JavaWebServiceApplication {
 
 	String logDir = "/app/log";
-	String logFileName = "java-web-servoce.log";
+	String logFileName = "java-web-service.log";
 
 	FileWriter fileWriter;
 
