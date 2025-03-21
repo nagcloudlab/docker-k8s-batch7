@@ -1,124 +1,52 @@
 
 
-
 ### Bridge Network Driver
-
-Create a bridge network:
-
 ```bash
-docker network create my_bridge_network1
+docker network create --driver bridge bridge1
 docker network ls
+
+docker run --network bridge1 --name c1 -it nicolaka/netshoot /bin/bash 
+
+docker run --network bridge1 --name c2 -it nicolaka/netshoot /bin/bash 
 ```
 
-Create a container with the `bridge` network driver:
 
+### Exercice-1: deploy voting-app containers on the bridge network
 ```bash
-docker rm -f bridge_container1
-docker run --network my_bridge_network1 --name bridge_container1 -it nicolaka/netshoot /bin/bash
-ifconfig
+# Create a bridge network
+docker network create --driver bridge voteapp
+# Create a volume for the database
+docker volume create pg_data
+# Create a db container
+docker run -d --name db --network voteapp -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_PASSWORD=postgres -v pg_data:/var/lib/postgresql/data postgres:15
+# Create a redis container
+docker run -d --name redis --network voteapp redis:alpine
+# Create a worker container
+docker run -d --name worker --network voteapp docker/example-voting-app-worker
+# Create a vote container
+docker run -d --name vote --network voteapp -p 5000:80 docker/example-voting-app-vote
+# Create a result container
+docker run -d --name result --network voteapp -p 5001:80 docker/example-voting-app-result
 ```
 
-Create another container on the same bridge network:
 
+
+### Exercice-2: deploy voting-app containers on the bridge network
 ```bash
-docker rm -f bridge_container2
-docker run --network my_bridge_network1 --name bridge_container2 -it nicolaka/netshoot /bin/bash
-ifconfig
+# Create a bridge network
+docker network create --driver bridge voteapp
+# Create a volume for the database
+docker volume create pg_data
+# Create a db container
+docker run -d --name db --network voteapp -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_PASSWORD=postgres -v pg_data:/var/lib/postgresql/data postgres:15
+# Create a redis container
+docker run -d --name redis --network voteapp redis:alpine
+# Create a worker container
+docker run -d --name worker --network voteapp docker/example-voting-app-worker
+# Create a vote container
+docker run -d --name vote --network voteapp docker/example-voting-app-vote
+# Create a result container
+docker run -d --name result --network voteapp docker/example-voting-app-result
+# Create a nginx container with volumes
+docker run -d --name nginx --network voteapp -p 80:80 -v $(pwd)/nginx.conf:/etc/nginx/nginx.conf:ro nginx:alpine
 ```
-
-Create Bridge Network with a subnet and gateway:
-
-```bash
-docker network create --driver bridge --subnet 192.168.100.0/24 --gateway 192.168.100.1 my_bridge_network2
-docker network inspect my_bridge_network2
-```
-
-Create a container on the bridge network with a specific IP address:
-
-```bash
-docker rm -f static_container1
-docker run --network my_bridge_network2 --name static_container1 --ip 192.168.100.10 -it nicolaka/netshoot /bin/bash
-ifconfig
-```
-
-```bash
-docker rm -f static_container2
-docker run --network my_bridge_network2 --name static_container2 --ip 192.168.100.11 -it nicolaka/netshoot /bin/bash
-ifconfig
-```
-
-### Host Network Driver
-
-Create a container with the `host` network driver:
-
-```bash
-docker rm -f host_container
-docker run --network host --name host_container -it nicolaka/netshoot /bin/bash
-ifconfig
-```
-
-Create a container with the `host` network driver , and run a web server - nginx
-
-```bash
-docker rm -f host_container
-docker run --network host --name host_container -d nginx
-curl localhost
-```
-
-
-### None Network Driver
-
-Create a container with the `none` network driver:
-
-```bash
-docker rm -f isolated_container
-docker run --network none --name isolated_container -it nicolaka/netshoot /bin/bash
-ifconfig
-```
-
-
-### Macvlan Network Driver
-
-Create a Macvlan network:
-
-```bash
-docker network create -d macvlan \
-  --subnet=192.168.1.0/24 \
-  --gateway=192.168.1.1 \
-  -o parent=eth0 \
-  my_macvlan_network
-
-
-docker rm -f macvlan_container1
-docker run --network my_macvlan_network --name macvlan_container1 -it nicolaka/netshoot /bin/bash
-ifconfig
-
-docker rm -f macvlan_container2
-docker run --network my_macvlan_network --name macvlan_container2 -it nicolaka/netshoot /bin/bash
-ifconfig
-docker network inspect my_macvlan_network
-
-```
-
-
-
-### Ipvlan Network Driver
-
-Create a Ipvlan network:
-
-```bash
-docker network create -d ipvlan \
-  --subnet=192.168.2.0/24 \
-  --gateway=192.168.2.1 \
-  -o parent=eth0 \
-  my_ipvlan_network
-
-docker rm -f ipvlan_container1
-docker run --network my_ipvlan_network --name ipvlan_container1 -it nicolaka/netshoot /bin/bash
-
-docker rm -f ipvlan_container2
-docker run --network my_ipvlan_network --name ipvlan_container2 -it nicolaka/netshoot /bin/bash
-
-docker network inspect my_ipvlan_network
-```
-
