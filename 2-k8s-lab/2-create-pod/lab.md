@@ -60,6 +60,19 @@ kubectl delete -f pod.yaml
 ```
 
 
+Pod management controllers
+
+1. ReplicationController ( deprecated)
+2. ReplicaSet
+3. Deployment
+4. StatefulSet
+5. DaemonSet
+6. Job
+7. CronJob
+
+
+
+
 
 ## ReplicationController, ReplicaSet, Deployment
 
