@@ -23,7 +23,6 @@ kind version
 
 
 ### create k8s cluster
-
 ```bash
 kind delete cluster --name my-cluster
 kind create cluster --image kindest/node:v1.30.0 --config kind-cluster.yaml --name kind-cluster
@@ -54,5 +53,30 @@ helm install rancher rancher-latest/rancher \
   --set hostname=rancher.localhost \
   --set bootstrapPassword=admin
 kubectl port-forward --address 0.0.0.0 -n cattle-system svc/rancher 8443:443
+```
+
+
+
+
+
+
+### get all k8s resources
+
+```bash
+kubectl api-versions
+kubectl api-resources
+```
+
+### create a namespace
+
+```bash
+kubectl create namespace my-namespace
+kubectl get namespaces
+```
+
+### switch to a namespace
+
+```bash
+kubectl config set-context --current --namespace=my-namespace
 ```
 

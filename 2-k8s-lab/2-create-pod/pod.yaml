@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+<<<<<<< HEAD
+    foo: bar
+    app: nginx
+    envi: prod
+=======
+    app: nginx
+>>>>>>> 7d6a1ca (schedule pods)
+    type: ui
+spec:
+  containers:
+  - image: nginx:1.11.7
+    name: nginx-container
