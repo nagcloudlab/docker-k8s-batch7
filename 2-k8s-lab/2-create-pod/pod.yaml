@@ -3,15 +3,16 @@ kind: Pod
 metadata:
   name: nginx-pod
   labels:
-<<<<<<< HEAD
-    foo: bar
     app: nginx
-    envi: prod
-=======
-    app: nginx
->>>>>>> 7d6a1ca (schedule pods)
-    type: ui
+    type: front-end
+    env: dev
 spec:
   containers:
-  - image: nginx:1.11.7
-    name: nginx-container
+  - name: nginx-container 
+    image: nginx:1.11.7
+  - name: alpine-container
+    image: alpine:3.5
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do echo hello; sleep 10;done"]  
+    
+

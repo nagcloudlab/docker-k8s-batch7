@@ -4,10 +4,10 @@
 
 ```bash
 kubectl get pods
-kubectl run nginx --image=nginx
+kubectl run nginx-pod --image=nginx
 kubectl get pods -o wide
-kubectl describe pod nginx
-kubectl delete pod nginx
+kubectl describe pod nginx-pod
+kubectl delete pod nginx-pod
 ```
 
 ### Lab: Create a Pod with a YAML file (kubectl create -f)
@@ -43,14 +43,14 @@ kubectl logs nginx-pod -f
 
 ### Lab: Exec into a Pod
 ```bash
-kubectl exec -it nginx-pod -- /bin/bash
+kubectl exec -it nginx-pod -c alpine-container -- /bin/sh
 ```
 
 ### Lab: Add a label to a Pod
 ```bash
-kubectl label pod nginx-pod environment=dev
+kubectl label pod nginx-pod dc=chennai
 kubectl get pods --show-labels
-kubectl get pods -l environment=dev
+kubectl get pods -l dc=chennai
 ```
 
 ### Lab: Delete a Pod 
@@ -58,6 +58,7 @@ kubectl get pods -l environment=dev
 kubectl delete pod nginx-pod
 kubectl delete -f pod.yaml
 ```
+
 
 
 ## ReplicationController, ReplicaSet, Deployment
