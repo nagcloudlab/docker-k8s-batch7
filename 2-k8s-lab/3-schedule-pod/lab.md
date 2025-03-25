@@ -52,7 +52,7 @@ kubectl delete -f node-affinity-pod.yaml
 kubectl get nodes --show-labels
 kubectl apply -f pod-affinity-pod.yaml
 kubectl get pods -o wide
-kubectl describe pod pod-affinity-pod
+kubectl describe pod alpine
 kubectl delete -f pod-affinity-pod.yaml
 ```
 

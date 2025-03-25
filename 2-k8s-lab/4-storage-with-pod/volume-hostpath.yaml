@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hostpath-demo
+spec:
+  nodeName: my-cluster-worker3
+  containers:
+  - name: logger
+    image: busybox
+    command: ["/bin/sh", "-c", "echo 'Logging to host' >> /mnt/logs/app.log && sleep 3600"]
+    volumeMounts:
+    - mountPath: "/mnt/logs"
+      name: logs-storage
+
+  volumes:
+  - name: logs-storage
+    hostPath:
+      path: "/var/log/pod-logs"
+      type: DirectoryOrCreate
