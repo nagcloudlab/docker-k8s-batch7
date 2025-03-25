@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: manual-scheduled-pod
 spec:
-  nodeName: kind-cluster-worker
+  nodeName: kind-cluster-worker3
   containers:
   - name: busybox
     image: busybox

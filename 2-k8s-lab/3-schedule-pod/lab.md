@@ -18,11 +18,13 @@ kubectl describe pod manual-scheduled-pod
 kubectl delete -f manual-scheduled-pod.yaml
 ```
 
-### 2️⃣ Node Selector ( using labels )
+### 2️⃣ Node Selector ( selector on labels )
 ```bash
 kubectl get nodes --show-labels
-kubectl label nodes kind-cluster-worker size=large # add label to node
-kubectl label nodes kind-cluster-worker2 disktype=ssd # add label to node
+kubectl label nodes kind-cluster-worker city=chennai
+kubectl label nodes kind-cluster-worker2 city=hyderabad
+kubectl label nodes kind-cluster-worker3 city-
+kubectl label nodes kind-cluster-worker2 diskType=ssd
 kubectl apply -f node-selector-pod.yaml
 kubectl get pods -o wide
 kubectl describe pod node-selector-pod
@@ -31,21 +33,20 @@ kubectl label nodes kind-cluster-worker2 disktype- # remove label from node
 ```
 
 
-### 3️⃣ Node Affinity
+### 3️⃣ Node Affinity  ( Advanced Node Selector )
 
 ```bash
-kubectl get nodes my-k8s-cluster-worker  --show-labels
-kubectl get nodes -l size
-kubectl get nodes -L size
-kubectl label nodes my-k8s-cluster-worker size=large
+kubectl get nodes kind-cluster-worker  --show-labels
+kubectl get nodes -l city
+kubectl get nodes -L city
 kubectl apply -f node-affinity-pod.yaml
 kubectl get pods -o wide
 kubectl describe pod node-affinity-pod
 kubectl delete -f node-affinity-pod.yaml
 ```
 
-### 4️⃣ Pod Affinity & Anti-Affinity
 
+### 4️⃣ Pod Affinity & Anti-Affinity
 
 ```bash
 kubectl get nodes --show-labels
@@ -55,11 +56,12 @@ kubectl describe pod pod-affinity-pod
 kubectl delete -f pod-affinity-pod.yaml
 ```
 
+
 ### 5️⃣ Taints & Tolerations
 
 ```bash
-kubectl describe node my-k8s-cluster-worker
-kubectl taint nodes my-k8s-cluster-worker trainee=true:NoSchedule
+kubectl describe node kind-cluster-worker
+kubectl taint nodes kind-cluster-worker npci=true:NoSchedule
 kubectl apply -f taint-toleration-pod.yaml
 kubectl get pods -o wide
 kubectl describe pod taint-toleration-pod
