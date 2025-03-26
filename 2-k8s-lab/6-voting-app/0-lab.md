@@ -118,9 +118,9 @@ sudo systemctl restart nfs-kernel-server
 helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
 helm repo update
 
-helm install nfs-client nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
-  --set nfs.server=192.168.0.107 \
-  --set nfs.path=/data/nfs/postgres \
+helm install nfs-client nfs-subdir-external-provisioner/nfs-subdir-external-provisioner\
+  --set nfs.server=10.0.0.4 \
+  --set nfs.path=/npci/nfs/jws/log \
   --set storageClass.name=nfs-storage \
   --set storageClass.defaultClass=true
 
