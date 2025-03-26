@@ -9,6 +9,7 @@ RUN mvn package -DskipTests
 
 FROM amazoncorretto:17-alpine-jdk as stage2
 WORKDIR /app
+RUN apk update && apk add curl
 COPY --from=stage1 /app/target/java-web-service-0.0.1-SNAPSHOT.jar /app
 USER root
 ENV SPRING_PROFILES_ACTIVE=prod
