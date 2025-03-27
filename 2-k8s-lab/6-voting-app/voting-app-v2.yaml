@@ -1,4 +1,3 @@
-# PostgreSQL Database
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -81,6 +80,15 @@ spec:
       labels:
         app: redis
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: role
+                    operator: NotIn
+                    values:
+                      - db
       containers:
         - name: redis
           image: redis:alpine
@@ -234,16 +242,6 @@ spec:
       labels:
         app: result
     spec:
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app
-                    operator: In
-                    values:
-                      - vote
-              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: result
           image: docker/example-voting-app-result

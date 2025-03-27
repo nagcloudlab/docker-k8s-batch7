@@ -49,5 +49,4 @@ docker run -d --name vote --network voteapp docker/example-voting-app-vote
 docker run -d --name result --network voteapp docker/example-voting-app-result
 # Create a nginx container with volumes
 docker run -d --name nginx --network voteapp -p 80:80 -v $(pwd)/nginx.conf:/etc/nginx/nginx.conf:ro nginx:alpine
-docker run -d --name nginx --network host -v $(pwd)/nginx.conf:/etc/nginx/nginx.conf:ro nginx:alpine
 ```
