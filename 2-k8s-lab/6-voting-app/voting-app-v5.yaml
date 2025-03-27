@@ -17,6 +17,7 @@ data:
 
 ---
 
+
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -77,6 +78,16 @@ spec:
       containers:
         - name: db
           image: postgres:15
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "postgres"]
+            initialDelaySeconds: 5
+            periodSeconds: 3
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -306,6 +317,18 @@ spec:
       containers:
         - name: result
           image: docker/example-voting-app-result
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 3
           ports:
             - containerPort: 80
           env:
