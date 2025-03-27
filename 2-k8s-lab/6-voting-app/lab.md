@@ -92,16 +92,6 @@ kubectl delete -f voting-app-v4.yaml
 ```
 
 
---------------------------------------------------------------------------
-### v6 -ConfigMap and Secret
---------------------------------------------------------------------------
-
-
-```bash
-kubectl apply -f voting-app-v6.yaml
-kubectl get pods
-kubectl delete -f voting-app-v6.yaml
-```
 
 --------------------------------------------------------------------------
 ### v7 - Pod with Liveness and Readiness Probe ( health checks)
@@ -112,17 +102,15 @@ kubectl get pods
 kubectl delete -f voting-app-v5.yaml
 ```
 
---------------------------------------------------------------------------
-
 
 
 --------------------------------------------------------------------------
-### Loadbalancer Service ( cloud provider specific)
+### v6 - Loadbalancer Service ( cloud provider specific)
 --------------------------------------------------------------------------
 
 ### create k8s cluster on Azure
 ```bash
-az group create --name nag-rg --location centralindia
+az group create --name myResourceGroup --location centralindia
 az aks create \
     --resource-group nag-rg \
     --name nag-aks \
@@ -143,12 +131,7 @@ kubectl delete -f voting-app-v6.yaml
 
 
 --------------------------------------------------------------------------
-### ingress controller
---------------------------------------------------------------------------
-
-
---------------------------------------------------------------------------
-### Ingress Service  ( ingress-nginx) / ( ingrress-traefik)
+### v7 - Ingress Controller ( Nginx)
 --------------------------------------------------------------------------
 
 on kind k8s cluster,
@@ -180,4 +163,140 @@ kubectl port-forward --address 0.0.0.0 -n ingress-nginx svc/ingress-nginx-contro
 kubectl delete -f voting-app-v7.yaml
 
 ```
+
+
+
+--------------------------------------------------------------------------
+### v8 - Network policies with calico-CNI / cilium-CNI
+--------------------------------------------------------------------------
+
+
+### Install Calico CNI on Kind
+
+```bash
+kubectl delete daemonsets -n kube-system kindnet
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+kubectl get pods -n kube-system
+```
+
+### Apply Network Policy
+
+```bash
+kubectl apply -f voting-app-v8.yaml
+kubectl get pods
+kubectl get svc
+kubectl get networkpolicies
+
+kubectl exec -it $(kubectl get pod -l app=vote -o jsonpath="{.items[0].metadata.name}") -- sh
+nc -zv redis 6379
+nc -zv db 5432
+
+
+kubectl delete -f voting-app-v8.yaml
+```
+
+
+--------------------------------------------------------------------------
+### v9 -  Networking with Service Mesh (Istio)
+--------------------------------------------------------------------------
+
+
+🚀 Why Use Istio with Calico?
+
+### Istio provides traffic management, security, and observability at the application layer (L7).
+### Calico provides network security policies and network routing at the network layer (L3/L4).
+### Together, they enable fine-grained security, service-to-service encryption, and observability.
+
+
+Install Istio on Kind
+```bash
+# Download and install Istio
+curl -L https://istio.io/downloadIstio | sh -
+cd istio-*
+export PATH=$PWD/bin:$PATH
+
+# Install Istio with default profile
+istioctl install --set profile=demo -y
+
+# Verify Istio installation
+kubectl get pods -n istio-system
+
+# Enable automatic sidecar injection
+kubectl label namespace default istio-injection=enabled --overwrite
+
+# Deploy Voting App
+cd ..
+kubectl apply -f voting-app-v9.yaml
+
+# Verify Voting App
+kubectl get pods
+kubectl get svc
+kubectl get gateway
+kubectl get virtualservice
+kubectl get svc istio-ingressgateway -n istio-system
+kubectl get nodes -o wide
+
+echo "172.18.0.5 vote.local result.local" | sudo tee -a /etc/hosts
+curl -v -H "Host: vote.local" http://172.18.0.5:32497
+curl -v -H "Host: result.local" http://172.18.0.5:32497
+
+# 🔥 Final Checks
+kubectl logs -l istio=ingressgateway -n istio-system
+kubectl get pods -o jsonpath='{.items[*].spec.containers[*].name}' | grep istio-proxy || echo "Sidecar not injected"
+
+
+# istio add-ons
+kubectl apply -f istio-1.25.0/samples/addons/kiali.yaml
+kubectl apply -f istio-1.25.0/samples/addons/prometheus.yaml
+kubectl apply -f istio-1.25.0/samples/addons/grafana.yaml
+
+# Verify Add-ons
+kubectl get pods -n istio-system
+
+# Access Kiali Dashboard
+istioctl dashboard kiali
+
+kubectl apply -f voting-app-v9.yaml
+kubectl get pods -w
+
+
+kubectl get svc -n istio-system
+for i in {1..100000}; do curl -H "Host: vote.local" http://172.18.0.5:32497; done
+
+
+# Access Prometheus Dashboard
+istioctl dashboard prometheus
+
+# Access Grafana Dashboard
+istioctl dashboard grafana
+
+# Cleanup
+kubectl delete -f voting-app-v9.yaml
+
+```
+
+
+--------------------------------------------------------------------------
+###  Traffic Splitting with Istio
+--------------------------------------------------------------------------
+
+
+```bash
+kubectl apply -f voting-app-v10.yaml
+kubectl get pods
+kubectl get svc
+kubectl get gateway 
+
+
+# Access Kiali Dashboard
+istioctl dashboard kiali
+
+kubectl get svc -n istio-system
+for i in {1..10000}; do curl -H "Host: vote.local" http://172.18.0.5:32497; done
+
+kubectl delete -f voting-app-v12.yaml
+```
+
+
+--------------------------------------------------------------------------
 

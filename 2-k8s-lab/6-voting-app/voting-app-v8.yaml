@@ -253,12 +253,11 @@ metadata:
   labels:
     app: vote
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
     - name: http
       port: 80
       targetPort: 80
-      nodePort: 30001
   selector:
     app: vote
 
@@ -320,11 +319,190 @@ metadata:
   labels:
     app: result
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
     - name: http
       port: 80
       targetPort: 80
-      nodePort: 30002
   selector:
     app: result
+
+---
+
+
+
+# 🔗 Ingress Configuration
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: voting-app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: vote.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vote
+                port:
+                  number: 80
+    - host: result.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: result
+                port:
+                  number: 80
+
+
+
+---
+
+
+# Deny all traffic by default in the namespace (optional but good practice)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+
+---
+
+# Allow Vote to Redis
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-vote-to-redis
+spec:
+  podSelector:
+    matchLabels:
+      app: redis
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: vote
+      ports:
+        - protocol: TCP
+          port: 6379
+
+---
+
+# Allow Worker to Redis
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-worker-to-redis
+spec:
+  podSelector:
+    matchLabels:
+      app: redis
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: worker
+      ports:
+        - protocol: TCP
+          port: 6379
+
+---
+
+# Allow Worker to DB
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-worker-to-db
+spec:
+  podSelector:
+    matchLabels:
+      app: db
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: worker
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+
+# Allow Result to DB
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-result-to-db
+spec:
+  podSelector:
+    matchLabels:
+      app: db
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: result
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-vote
+spec:
+  podSelector:
+    matchLabels:
+      app: vote
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+               kubernetes.io/metadata.name: ingress-nginx  # FIXED Namespace Selection
+      ports:
+        - protocol: TCP
+          port: 80
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-to-result
+spec:
+  podSelector:
+    matchLabels:
+      app: result
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+               kubernetes.io/metadata.name: ingress-nginx 
+      ports:
+        - protocol: TCP
+          port: 80
