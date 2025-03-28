@@ -92,7 +92,6 @@ kubectl delete -f voting-app-v4.yaml
 ```
 
 
-
 --------------------------------------------------------------------------
 ### v7 - Pod with Liveness and Readiness Probe ( health checks)
 --------------------------------------------------------------------------
@@ -101,7 +100,6 @@ kubectl apply -f voting-app-v5.yaml
 kubectl get pods
 kubectl delete -f voting-app-v5.yaml
 ```
-
 
 
 --------------------------------------------------------------------------
@@ -143,11 +141,14 @@ kubectl wait --namespace ingress-nginx \
   --selector=app.kubernetes.io/component=controller \
   --timeout=90s
 
-kubectl apply -f voting-app-v7.yaml
-kubectl get pods
+kubectl get pods -n ingress-nginx 
 kubectl get svc -n ingress-nginx 
-curl -H "Host: vote.local" http://172.18.0.5:<nodeport>
-curl -H "Host: result.local" http://172.18.0.5:<nodeport>
+
+kubectl apply -f voting-app-v7.yaml
+kubectl get pods 
+kubectl get svc -n ingress-nginx 
+curl -H "Host: vote.local" http://172.18.0.5:30487
+curl -H "Host: result.local" http://172.18.0.5:30487
 
 sudo nano /etc/hosts
 # add below line
@@ -169,6 +170,20 @@ kubectl delete -f voting-app-v7.yaml
 --------------------------------------------------------------------------
 ### v8 - Network policies with calico-CNI / cilium-CNI
 --------------------------------------------------------------------------
+
+
+K8s CNI plugins:
+
+- Calico (L3/L4) - Bgp based
+- Cilium (L3/L4/L7) - eBPF based
+- Flannel (L3)
+- Weave (L2/L3)
+- Kube-router (L3/L4)
+- Romana (L3/L4)
+- Antrea (L3/L4)
+- kindnet (L3/L4) - default CNI for kind
+
+
 
 
 ### Install Calico CNI on Kind
@@ -292,7 +307,7 @@ kubectl get gateway
 istioctl dashboard kiali
 
 kubectl get svc -n istio-system
-for i in {1..10000}; do curl -H "Host: vote.local" http://172.18.0.5:32497; done
+for i in {1..10000}; do curl -H "Host: vote.local" http://172.18.0.5:32261; done
 
 kubectl delete -f voting-app-v12.yaml
 ```

@@ -1,0 +1,63 @@
+replicaCount: 1
+
+image:
+  vote: docker/example-voting-app-vote
+  result: docker/example-voting-app-result
+  worker: docker/example-voting-app-worker
+  redis: redis:alpine
+  postgres: postgres:15
+
+resources:
+  vote:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "300m"
+      memory: "256Mi"
+  result:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "300m"
+      memory: "256Mi"
+  worker:
+    requests:
+      cpu: "150m"
+      memory: "128Mi"
+    limits:
+      cpu: "400m"
+      memory: "256Mi"
+  redis:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "300m"
+      memory: "256Mi"
+  db:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+env:
+  POSTGRES_HOST: db
+  REDIS_HOST: redis
+  POSTGRES_PASSWORD: postgres
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+  hosts:
+    - host: vote.local
+      path: /
+      service: vote
+    - host: result.local
+      path: /
+      service: result

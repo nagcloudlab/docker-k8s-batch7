@@ -4,8 +4,8 @@
 
 ```bash
 docker ps
-docker cp my-k8s-cluster-control-plane:/etc/kubernetes/pki/ca.crt .
-docker cp my-k8s-cluster-control-plane:/etc/kubernetes/pki/ca.key .
+docker cp kind-cluster-control-plane:/etc/kubernetes/pki/ca.crt .
+docker cp kind-cluster-control-plane:/etc/kubernetes/pki/ca.key .
 
 ```
 
@@ -17,17 +17,28 @@ openssl req -new -key user1.key -out user1.csr -subj "/CN=user1/O=npci-team"
 openssl x509 -req -in user1.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out user1.crt -days 365
 ```
 
+### generate user2 certificate
+
+```bash
+openssl genrsa -out user2.key 2048
+openssl req -new -key user2.key -out user2.csr -subj "/CN=user2/O=vendor-team"
+openssl x509 -req -in user2.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out user2.crt -days 365
+```
+
+
 
 ### configure kubectl with user1 certificate
 
 ```bash
 kubectl config set-credentials user1 --client-certificate=user1.crt --client-key=user1.key
+kubectl config set-credentials user2 --client-certificate=user2.crt --client-key=user2.key
 ```
 
 ### configure kubectl with user1 context
 
 ```bash
-kubectl config set-context user1-context --cluster=kind-my-k8s-cluster --user=user1
+kubectl config set-context user1-context --cluster=kind-kind-cluster --user=user1
+kubectl config set-context user2-context --cluster=kind-kind-cluster --user=user2
 ```
 
 ### switch to user1 context
@@ -35,7 +46,7 @@ kubectl config set-context user1-context --cluster=kind-my-k8s-cluster --user=us
 ```bash
 kubectl config get-contexts
 kubectl config use-context user1-context
-kubectl config use-context kind-my-k8s-cluster
+kubectl config use-context kind-kind-cluster
 ```
 
 

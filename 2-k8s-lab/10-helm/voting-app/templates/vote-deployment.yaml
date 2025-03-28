@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-vote
+  labels:
+    app: vote
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: vote
+  template:
+    metadata:
+      labels:
+        app: vote
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - result
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: vote
+          image: {{ .Values.image.vote }}
+          ports:
+            - containerPort: 80
+          env:
+            - name: REDIS_HOST
+              value: {{ .Values.env.REDIS_HOST }}
+          resources:
+{{ toYaml .Values.resources.vote | indent 12 }}

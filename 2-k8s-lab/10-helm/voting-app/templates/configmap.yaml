@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+data:
+  POSTGRES_HOST: {{ .Values.env.POSTGRES_HOST }}
+  REDIS_HOST: {{ .Values.env.REDIS_HOST }}

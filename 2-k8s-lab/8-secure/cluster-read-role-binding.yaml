@@ -5,7 +5,7 @@ metadata:
   name: cluster-read-only-binding
 subjects:
   - kind: User
-    name: user1  # This must match the certificate CN (TLS authentication)
+    name: user2  # This must match the certificate CN (TLS authentication)
     apiGroup: rbac.authorization.k8s.io
 roleRef:
   kind: ClusterRole
